@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Fichiers sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Fichiers de ressources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Fichiers sources\memeory">
+      <UniqueIdentifier>{22850827-9b02-40d5-b8da-79e2e57bd5f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\memeory\hde">
+      <UniqueIdentifier>{272761f2-acf2-4fd7-a177-4522d72795b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="il2cpp.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\memeory\memeory\hde\hde32.c">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\memeory\memeory\hde\hde64.c">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\memeory\memeory\hook.cpp">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\memeory\memeory\memeory.cpp">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\memeory\memeory\vmt.cpp">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="il2cpp.h">
+      <Filter>Fichiers sources</Filter>
+    </ClInclude>
+    <ClInclude Include="il2cpp_api.h">
+      <Filter>Fichiers sources</Filter>
+    </ClInclude>
+    <ClInclude Include="il2cpp_types.h">
+      <Filter>Fichiers sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hde\hde32.h">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hde\hde64.h">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hde\pstdint.h">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hde\table32.h">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hde\table64.h">
+      <Filter>Fichiers sources\memeory\hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\hook.h">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\memeory.h">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\memeory\memeory\vmt.h">
+      <Filter>Fichiers sources\memeory</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
