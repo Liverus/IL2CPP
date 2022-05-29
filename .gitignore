@@ -1,7 +1,0 @@
-
-*.tlog
-*.obj
-*.log
-*.idb
-*.pdb
-il2cpp.vcxproj.user
