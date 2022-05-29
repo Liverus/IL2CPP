@@ -1,15 +1,18 @@
 #pragma once
 
+#include <vector>
+#include <map>
+
 #include "il2cpp_types.h"
 
 #define IL2CPP_API_H                "il2cpp_api.h"
-#define IL2CPP_TYPEDEF(r, n, p)      typedef r(__cdecl* n ## _t)p;
+#define IL2CPP_TypeDEF(r, n, p)      typedef r(__cdecl* n ## _t)p;
 #define IL2CPP_EXTERN_DECLARATION(n) extern n ## _t n;
 #define IL2CPP_DECLARATION(n)        n ## _t n;
 #define IL2CPP_FIND_FUNCTION(n)      API:: ## n = Memory::FindFunction<n ## _t>(game_assembly, #n);
 // #define IL2CPP_FIND_FUNCTION(n)      API:: ## n = Memory::CopyFunction<n ## _t>(Memory::FindFunction<n ## _t>(game_assembly, #n));
 
-#define DO_API(r, n, p) IL2CPP_TYPEDEF(r, n, p);
+#define DO_API(r, n, p) IL2CPP_TypeDEF(r, n, p);
 #include IL2CPP_API_H
 #undef DO_API
 
@@ -17,8 +20,6 @@
 
 namespace IL2CPP
 {
-	extern Il2CppDomain* domain;
-
 	bool Initialize(void* mod);
 	bool Initialize();
 	void Attach();
@@ -29,23 +30,34 @@ namespace IL2CPP
 		#undef DO_API
 	}
 
-	struct METHOD;
-	struct STRING;
-	struct ASSEMBLY;
-	struct CLASS;
-	struct FIELD;
-	struct NAMESPACE;
+	struct Method;
+	struct String;
+	struct Assembly;
+	struct Class;
+	struct Field;
+	struct Namespace;
 
 	template <class T>
-	struct ARRAY;
-	struct STRING;
-	struct OBJECT;
-	struct TYPE;
+	struct Array;
+	struct String;
+	struct Object;
+	struct Type;
 
-	struct METHOD : public MethodInfo {
-		const char* Name();
+	extern std::map<Class*, std::map<Class*, std::vector<Class*>>> generic_cache; // BaseClass: {GenericClass: ArgumentClass[]}
+	extern Il2CppDomain* domain;
 
+	struct EnumClassContext {
+		Class* generic_class;
+		std::vector<Class*> parameters;
+		std::vector<Class*> resolved;
+	};
 
+	void EnumerateClasses(Class* klass, void* user_data);
+
+	struct Method : public MethodInfo {
+		static Method* Resolve(const char* assembly_name, const char* namespace_name, const char* class_name, const char* method_name, int param_count);
+
+		const char* GetName();
 
 		template <class T>
 		Memory::Hook* Hook(void* new_method, T* original) {
@@ -68,55 +80,68 @@ namespace IL2CPP
 		}
 	};
 
-	struct STRING : public Il2CppString {
-		const size_t Length();
-		const wchar_t* WChars();
+	struct String : public Il2CppString {
+		static String* New(const char* string);
+		static String* NewLen(const char* string);
+
+		const size_t GetLength();
+		const wchar_t* GetWChars();
 	};
 
-	struct ASSEMBLY : public Il2CppAssembly {
-		NAMESPACE* Namespace(const char* assembly_name);
+	struct Assembly : public Il2CppAssembly {
+		static Assembly* Resolve(const char* assembly_name);
 
-		Il2CppImage* Image();
-		ASSEMBLY* List(size_t* size);
+		Namespace* GetNamespace(const char* assembly_name);
+
+		Il2CppImage* GetImage();
+		Assembly* GetList(size_t* size);
 	};
 
-	struct NAMESPACE {
-		NAMESPACE(ASSEMBLY* assembly_, const char* name_);
+	struct Namespace {
+		Namespace(Assembly* Assembly_, const char* name_);
 
-		CLASS* Class(const char* class_name);
+		Class* GetClass(const char* class_name);
 
-		ASSEMBLY* assembly;
+		Assembly* assembly;
 		const char* name;
 	};
 
-	struct CLASS : public Il2CppClass {
-		TYPE* Type(const char* field_name);
-		TYPE* Type();
+	struct Class : public Il2CppClass {
+		static Class* Resolve(const char* assembly_name, const char* namespace_name, const char* class_name);
 
-		// Create Object
-		template <class T>
-		T New() {
-			return API::il2cpp_object_new(this);
-		}
+		// Generic
+		int    GetGenericArgCount();
+		Class* GetGenericArgAt(int index);
+		Class* GetGeneric(std::vector<Class*> classes);
 
-		METHOD* Method(const char* method_name, int args_count = 0);
+		Object* GetObject();
 
-		FIELD* Field(const char* field_name);
+		Type* GetType(const char* Field_name);
+		Type* GetType();
 
-		const char* Name();
-		const char* Namespaze();
-		const char* AssemblyName();
-		const Il2CppImage* Image();
+		Method* GetMethod(const char* method_name, int args_count = 0);
+
+		Field* GetField(const char* Field_name);
+
+		const char* GetName();
+		const char* GetNamespaze();
+		const char* GetAssemblyName();
+		const Il2CppImage* GetImage();
+
+		bool IsGeneric();
+		bool IsInflated();
 	};
 
-	struct FIELD : public FieldInfo {
-		const char* Name();
-		size_t Offset();
+	struct Field : public FieldInfo {
+		static Field* Resolve(const char* assembly_name, const char* namespace_name, const char* class_name, const char* Field_name);
 
-		TYPE* Type();
+		const char* GetName();
+		size_t GetOffset();
+
+		Type* GetType();
 
 		template <class T>
-		void SetValue(OBJECT* obj, void* value) {
+		void SetValue(Object* obj, void* value) {
 			API::il2cpp_field_set_value(obj, this, value);
 		};
 
@@ -126,10 +151,9 @@ namespace IL2CPP
 		};
 
 		template <class T>
-		T GetValue(OBJECT* obj) {
+		T GetValue(Object* obj) {
 
 			T ret;
-
 			API::il2cpp_field_get_value(obj, this, &ret);
 
 			return ret;
@@ -146,32 +170,45 @@ namespace IL2CPP
 		};
 	};
 
-	struct TYPE : public Il2CppType {
-		CLASS* Class();
-		const char* Name();
-		OBJECT* Object();
+	struct Type : public Il2CppType {
+		Class* GetClass();
+		const char* GetName();
+		Object* GetObject();
 	};
 
-	struct OBJECT : public Il2CppObject {
-		FIELD* Field(const char* field_name);
+	struct Object : public Il2CppObject {
+		Field* GetField(const char* Field_name);
+
+		Class* GetGeneric(std::vector<Class*> classes);
+
+		// Create Object
+		template <class T>
+		static T New(Class* klass) {
+			return (T)API::il2cpp_object_new(klass);
+		}
+
+		 template <class T>
+		 static T New(const char* assembly_name, const char* namespace_name, const char* class_name) {
+			 return New<T>(Class::Resolve(assembly_name, namespace_name, class_name));
+		 }
 
 		template <class T>
-		T GetValue(const char* field_name) {
-			return Field(field_name)->GetValue<T>(this);
+		T GetValue(const char* Field_name) {
+			return GetField(Field_name)->GetValue<T>(this);
 		};
 
 		template <class T>
-		void SetValue(const char* field_name, void* value) {
-			Field(field_name)->SetValue<T>(this, value);
+		void SetValue(const char* Field_name, void* value) {
+			GetField(Field_name)->SetValue<T>(this, value);
 		}
 
-		CLASS* Class();
-		TYPE* Type(const char* field_name);
+		Class* GetClass();
+		Type* GetType(const char* Field_name);
 	};
 
 	template <class T>
-	struct ARRAY : public Il2CppArray {
-		size_t MaxLength() {
+	struct Array : public Il2CppArray {
+		size_t GetMaxLength() {
 			return this->max_length;
 		}
 
@@ -188,15 +225,8 @@ namespace IL2CPP
 		}
 	};
 
-	ASSEMBLY* Assembly(const char* name);
-	STRING* String(const char* str);
-
-	CLASS*  Class(const char* assembly_name, const char* namespace_name, const char* class_name);
-	FIELD*  Field(const char* assembly_name, const char* namespace_name, const char* class_name, const char* field_name);
-	METHOD* Method(const char* assembly_name, const char* namespace_name, const char* class_name, const char* method_name, int param_count);
-
 	template<class T>
 	T Function(const char* assembly_name, const char* namespace_name, const char* klass_name, const char* method_name, int param_count) {
-		return Method(assembly_name, namespace_name, klass_name, method_name, param_count)->FindFunction<T>();
+		return Method::Resolve(assembly_name, namespace_name, klass_name, method_name, param_count)->FindFunction<T>();
 	}
 };
